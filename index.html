@@ -37,6 +37,17 @@
         .tab-inactive { color: #94a3b8; }
         .tab-inactive:hover { color: #cbd5e1; }
 
+        /* Mobile Menu Styles */
+        .mobile-tab-active {
+            background-color: rgba(6, 182, 212, 0.1);
+            color: #06b6d4;
+            border-left: 3px solid #06b6d4;
+        }
+        .mobile-tab-inactive {
+            color: #94a3b8;
+            border-left: 3px solid transparent;
+        }
+
         /* Utility */
         .glass-panel {
             background: rgba(30, 41, 59, 0.7);
@@ -47,35 +58,54 @@
     </style>
     <!-- Chosen Palette: Cyber-Slate (Slate 900 bg, Cyan 500 accents) -->
     <!-- Application Structure Plan: 
-         - Maintained original structure (Dashboard -> SoCs -> Projects -> Peripherals).
-         - Updated UI to Dark Mode.
-         - Updated Data Source to reflect accurate CSV inventory.
+         - Maintained original structure.
+         - ADDED: Functional Mobile Menu Logic.
+         - Maintained accurate inventory data.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white relative">
 
     <!-- Navigation / Header -->
-    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-30 backdrop-blur-md">
+    <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <div class="w-8 h-8 bg-cyan-600 rounded flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-900/50">M</div>
                 <h1 class="text-lg font-bold text-slate-100 tracking-tight">INVENTORY<span class="text-cyan-500">_LAB</span></h1>
             </div>
+            
+            <!-- Desktop Nav -->
             <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wide">
                 <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-active py-5 px-1 transition-all">DASHBOARD</button>
                 <button onclick="switchTab('socs')" id="nav-socs" class="tab-inactive py-5 px-1 transition-all">SOC_RESEARCH</button>
                 <button onclick="switchTab('projects')" id="nav-projects" class="tab-inactive py-5 px-1 transition-all">PROJECT_FABRICATOR</button>
                 <button onclick="switchTab('peripherals')" id="nav-peripherals" class="tab-inactive py-5 px-1 transition-all">PERIPHERALS</button>
             </nav>
-            <button class="md:hidden text-slate-400 hover:text-white">
-                <span class="sr-only">Menu</span>
-                ☰
+
+            <!-- Mobile Menu Button -->
+            <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-slate-400 hover:text-white focus:outline-none">
+                <span class="sr-only">Open menu</span>
+                <!-- CSS Hamburger -->
+                <div class="space-y-1.5">
+                    <span class="block w-6 h-0.5 bg-current"></span>
+                    <span class="block w-6 h-0.5 bg-current"></span>
+                    <span class="block w-6 h-0.5 bg-current"></span>
+                </div>
             </button>
+        </div>
+
+        <!-- Mobile Menu Container -->
+        <div id="mobile-menu" class="hidden md:hidden absolute w-full bg-slate-900 border-b border-slate-800 shadow-xl transition-all duration-300 ease-in-out">
+            <div class="flex flex-col px-4 pt-2 pb-6 space-y-1">
+                <button onclick="switchTab('dashboard')" id="mobile-nav-dashboard" class="mobile-tab-active w-full text-left py-3 px-4 rounded transition-colors font-mono text-sm font-bold">DASHBOARD</button>
+                <button onclick="switchTab('socs')" id="mobile-nav-socs" class="mobile-tab-inactive w-full text-left py-3 px-4 rounded transition-colors font-mono text-sm font-bold">SOC_RESEARCH</button>
+                <button onclick="switchTab('projects')" id="mobile-nav-projects" class="mobile-tab-inactive w-full text-left py-3 px-4 rounded transition-colors font-mono text-sm font-bold">PROJECTS</button>
+                <button onclick="switchTab('peripherals')" id="mobile-nav-peripherals" class="mobile-tab-inactive w-full text-left py-3 px-4 rounded transition-colors font-mono text-sm font-bold">PERIPHERALS</button>
+            </div>
         </div>
     </header>
 
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full z-0">
 
         <!-- Intro Section -->
         <section class="mb-10 border-b border-slate-800 pb-8">
@@ -528,13 +558,32 @@
 
         // --- 3. UI LOGIC ---
 
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
         function switchTab(tabId) {
+            // Hide all views
             ['dashboard', 'socs', 'projects', 'peripherals'].forEach(id => {
                 document.getElementById(`view-${id}`).classList.add('hidden');
+                
+                // Desktop nav state
                 document.getElementById(`nav-${id}`).classList.replace('tab-active', 'tab-inactive');
+                
+                // Mobile nav state
+                document.getElementById(`mobile-nav-${id}`).classList.replace('mobile-tab-active', 'mobile-tab-inactive');
             });
+
+            // Show selected view
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            
+            // Set active states
             document.getElementById(`nav-${tabId}`).classList.replace('tab-inactive', 'tab-active');
+            document.getElementById(`mobile-nav-${tabId}`).classList.replace('mobile-tab-inactive', 'mobile-tab-active');
+
+            // Close mobile menu if open
+            document.getElementById('mobile-menu').classList.add('hidden');
         }
 
         function toggleSoCDetail(index) {
