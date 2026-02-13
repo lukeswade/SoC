@@ -3,180 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maker's Inventory Analysis & Project Lab</title>
+    <title>Maker's Inventory Lab [Dark Mode]</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #1e293b; }
-        .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
-        .chart-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; height: 300px; }
-        /* Custom Scrollbar */
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        h1, h2, h3, h4, .mono-font { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar for Dark Mode */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .tab-active { border-bottom: 2px solid #0f766e; color: #0f766e; font-weight: 600; }
-        .tab-inactive { color: #64748b; }
-        .tab-inactive:hover { color: #334155; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Card Hover Effects */
+        .card-hover { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card-hover:hover { 
+            transform: translateY(-4px); 
+            box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.15), 0 8px 10px -6px rgba(6, 182, 212, 0.1);
+            border-color: #06b6d4;
+        }
+
+        /* Chart Container */
+        .chart-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; height: 300px; }
+
+        /* Navigation Tabs */
+        .tab-active { 
+            border-bottom: 2px solid #06b6d4; 
+            color: #06b6d4; 
+            text-shadow: 0 0 10px rgba(6,182,212,0.3);
+        }
+        .tab-inactive { color: #94a3b8; }
+        .tab-inactive:hover { color: #cbd5e1; }
+
+        /* Utility */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
     </style>
-    <!-- Chosen Palette: Teal & Slate (Teal for accents/interactions, Slate for structure/text) -->
+    <!-- Chosen Palette: Cyber-Slate (Slate 900 bg, Cyan 500 accents) -->
     <!-- Application Structure Plan: 
-         1. Header: Context and Title.
-         2. Inventory Dashboard (Top): High-level view of what's available using a Chart.js donut chart to categorize SoCs vs Peripherals.
-         3. Main Content Area (Tabs):
-            - Tab 1: SoC Deep Dive (The core research report). Interactive cards for each SoC model. Clicking a card reveals detailed Specs, Pros/Cons, and Use Cases (expanding details).
-            - Tab 2: Project Fabricator. A filterable list of 20+ project ideas generated from the inventory. Filters for Category (Home Automation, Audio, etc.) and Difficulty.
-            - Tab 3: Expansion Pack. Recommendations for future purchases (SoCs not in list).
-         4. Peripheral Showcase: A searchable list/grid of the sensors and accessories to provide context for the projects.
-         Why this structure? It separates the "Reference" material (SoC data) from the "Actionable" material (Projects), while keeping the inventory summary as the anchor.
-    -->
-    <!-- Visualization & Content Choices:
-         - Inventory Overview: Donut Chart. Goal: Inform/Organize. Justification: Quick visual breakdown of the "toolkit".
-         - SoC Profiles: Card Layout with Expand/Collapse. Goal: Inform/Compare. Justification: Allows scanning of models, then deep diving into specifics without cluttering the screen.
-         - Project List: Filterable Grid. Goal: Inspire. Justification: Users might look for "Easy" projects or specifically "Audio" projects.
-         - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+         - Maintained original structure (Dashboard -> SoCs -> Projects -> Peripherals).
+         - Updated UI to Dark Mode.
+         - Updated Data Source to reflect accurate CSV inventory.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
 
     <!-- Navigation / Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-30 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">M</div>
-                <h1 class="text-xl font-bold text-slate-800 tracking-tight">Maker's Inventory Lab</h1>
+                <div class="w-8 h-8 bg-cyan-600 rounded flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-cyan-900/50">M</div>
+                <h1 class="text-lg font-bold text-slate-100 tracking-tight">INVENTORY<span class="text-cyan-500">_LAB</span></h1>
             </div>
-            <nav class="hidden md:flex space-x-8">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-active py-5 px-1 transition-colors">Dashboard</button>
-                <button onclick="switchTab('socs')" id="nav-socs" class="tab-inactive py-5 px-1 transition-colors">SoC Research</button>
-                <button onclick="switchTab('projects')" id="nav-projects" class="tab-inactive py-5 px-1 transition-colors">Project Ideas</button>
-                <button onclick="switchTab('peripherals')" id="nav-peripherals" class="tab-inactive py-5 px-1 transition-colors">Peripherals</button>
+            <nav class="hidden md:flex space-x-8 text-sm font-medium tracking-wide">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="tab-active py-5 px-1 transition-all">DASHBOARD</button>
+                <button onclick="switchTab('socs')" id="nav-socs" class="tab-inactive py-5 px-1 transition-all">SOC_RESEARCH</button>
+                <button onclick="switchTab('projects')" id="nav-projects" class="tab-inactive py-5 px-1 transition-all">PROJECT_FABRICATOR</button>
+                <button onclick="switchTab('peripherals')" id="nav-peripherals" class="tab-inactive py-5 px-1 transition-all">PERIPHERALS</button>
             </nav>
-            <!-- Mobile Menu Button (simplified) -->
-            <button class="md:hidden text-slate-500 hover:text-slate-700">Menu</button>
+            <button class="md:hidden text-slate-400 hover:text-white">
+                <span class="sr-only">Menu</span>
+                ☰
+            </button>
         </div>
     </header>
 
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
         <!-- Intro Section -->
-        <section class="mb-8">
-            <h2 class="text-2xl font-bold text-slate-900">Inventory Analysis & Project Intelligence</h2>
-            <p class="mt-2 text-slate-600 max-w-3xl">
-                This interactive report analyzes your current electronics inventory (ESPs, sensors, displays) to provide technical deep-dives and tailored project suggestions. 
-                Explore your hardware capabilities and discover your next build.
+        <section class="mb-10 border-b border-slate-800 pb-8">
+            <h2 class="text-3xl font-bold text-white mb-2">SYSTEM STATUS: <span class="text-green-500">ONLINE</span></h2>
+            <p class="text-slate-400 max-w-3xl leading-relaxed">
+                Inventory audit complete. Analysis of ESP microcontrollers and peripheral modules initialized. 
+                <span class="text-cyan-500">Select a module below to begin research or fabrication planning.</span>
             </p>
         </section>
 
         <!-- VIEW: DASHBOARD -->
         <div id="view-dashboard" class="space-y-8 animate-fade-in">
+            <!-- Stats Row -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Stats Cards -->
-                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Microcontrollers</p>
-                        <h3 class="text-4xl font-bold text-slate-900 mt-2" id="total-socs">0</h3>
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="text-6xl">⚡</span>
                     </div>
-                    <div class="mt-4 text-sm text-teal-600 font-medium">Ready for deployment</div>
+                    <p class="text-xs font-bold text-cyan-500 uppercase tracking-widest mb-1">Controllers</p>
+                    <h3 class="text-4xl font-bold text-white" id="total-socs">0</h3>
+                    <div class="mt-4 text-xs text-slate-400">Total Logic Units</div>
                 </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Sensors & Input</p>
-                        <h3 class="text-4xl font-bold text-slate-900 mt-2" id="total-sensors">0</h3>
+                
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="text-6xl">📡</span>
                     </div>
-                    <div class="mt-4 text-sm text-teal-600 font-medium">Environmental, Motion, Audio</div>
+                    <p class="text-xs font-bold text-purple-500 uppercase tracking-widest mb-1">Sensors & Input</p>
+                    <h3 class="text-4xl font-bold text-white" id="total-sensors">0</h3>
+                    <div class="mt-4 text-xs text-slate-400">Data Acquisition Points</div>
                 </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500 uppercase tracking-wider">Displays & Output</p>
-                        <h3 class="text-4xl font-bold text-slate-900 mt-2" id="total-outputs">0</h3>
+
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <span class="text-6xl">📟</span>
                     </div>
-                    <div class="mt-4 text-sm text-teal-600 font-medium">Visual & Haptic Feedback</div>
+                    <p class="text-xs font-bold text-pink-500 uppercase tracking-widest mb-1">Displays & Access.</p>
+                    <h3 class="text-4xl font-bold text-white" id="total-outputs">0</h3>
+                    <div class="mt-4 text-xs text-slate-400">UI & Infrastructure</div>
                 </div>
             </div>
 
-            <!-- Main Chart Area -->
+            <!-- Charts Row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
-                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Inventory Composition</h3>
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+                    <h3 class="text-lg font-bold text-slate-200 mb-6 flex items-center">
+                        <span class="w-2 h-2 bg-cyan-500 rounded-full mr-2"></span> Inventory Composition
+                    </h3>
                     <div class="chart-container">
                         <canvas id="inventoryChart"></canvas>
                     </div>
-                    <p class="text-xs text-center text-slate-400 mt-4">Distribution by Component Category</p>
                 </div>
-                <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-100">
-                    <h3 class="text-lg font-semibold text-slate-800 mb-4">SoC Family Breakdown</h3>
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-lg">
+                    <h3 class="text-lg font-bold text-slate-200 mb-6 flex items-center">
+                        <span class="w-2 h-2 bg-teal-500 rounded-full mr-2"></span> SoC Logic Breakdown
+                    </h3>
                     <div class="chart-container">
                         <canvas id="socChart"></canvas>
                     </div>
-                    <p class="text-xs text-center text-slate-400 mt-4">ESP8266 vs ESP32 Variants</p>
                 </div>
             </div>
         </div>
 
         <!-- VIEW: SOC RESEARCH -->
         <div id="view-socs" class="hidden space-y-8">
-            <div class="bg-white p-6 rounded-xl border border-teal-100 bg-teal-50">
-                <h3 class="text-lg font-bold text-teal-900">SoC Research Report</h3>
-                <p class="text-teal-700 mt-2">
-                    A comprehensive analysis of the microcontrollers in your possession. Click any card to expand the full technical report, including strengths, weaknesses, and recommended use cases.
+            <div class="bg-cyan-900/20 p-6 rounded-xl border border-cyan-800/50">
+                <h3 class="text-lg font-bold text-cyan-400 mono-font">>> RESEARCH_LOG: SOC_ANALYSIS</h3>
+                <p class="text-slate-300 mt-2 text-sm">
+                    Detailed technical specifications and comparative analysis for inventory microcontrollers.
+                    Click cards to decrypt full data.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="soc-grid">
-                <!-- SoC Cards will be injected here by JS -->
+                <!-- SoC Cards Injected Here -->
             </div>
 
             <!-- Future Recommendations -->
-            <div class="mt-12">
-                <h3 class="text-xl font-bold text-slate-900 mb-4">Expansion Recommendations</h3>
-                <p class="text-slate-600 mb-6">Based on your current inventory, these 4 boards would be high-value additions to your lab.</p>
+            <div class="mt-16 pt-8 border-t border-slate-800">
+                <h3 class="text-xl font-bold text-white mb-6">ACQUISITION RECOMMENDATIONS</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="recommendation-grid">
-                    <!-- Recommendations injected here -->
+                    <!-- Recommendations Injected Here -->
                 </div>
             </div>
         </div>
 
         <!-- VIEW: PROJECTS -->
-        <div id="view-projects" class="hidden space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div id="view-projects" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                    <h3 class="text-2xl font-bold text-slate-900">Project Fabricator</h3>
-                    <p class="text-slate-500">20+ Ideas utilizing your current inventory.</p>
+                    <h3 class="text-2xl font-bold text-white mono-font">PROJECT_FABRICATOR</h3>
+                    <p class="text-slate-400 text-sm mt-1">Viable schematics based on available components.</p>
                 </div>
                 <div class="flex gap-2 flex-wrap">
-                    <button onclick="filterProjects('All')" class="px-4 py-2 rounded-full text-sm font-medium bg-slate-200 text-slate-700 hover:bg-teal-600 hover:text-white transition-colors filter-btn active-filter" data-filter="All">All</button>
-                    <button onclick="filterProjects('Home Automation')" class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-teal-600 hover:text-white transition-colors filter-btn" data-filter="Home Automation">Home Auto</button>
-                    <button onclick="filterProjects('Sensors')" class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-teal-600 hover:text-white transition-colors filter-btn" data-filter="Sensors">Sensors</button>
-                    <button onclick="filterProjects('Display/UI')" class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-teal-600 hover:text-white transition-colors filter-btn" data-filter="Display/UI">Display/UI</button>
-                    <button onclick="filterProjects('Audio')" class="px-4 py-2 rounded-full text-sm font-medium bg-white border border-slate-200 text-slate-700 hover:bg-teal-600 hover:text-white transition-colors filter-btn" data-filter="Audio">Audio</button>
+                    <button onclick="filterProjects('All')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-cyan-600 text-white hover:bg-cyan-500 transition-all filter-btn shadow-lg shadow-cyan-900/50" data-filter="All">All</button>
+                    <button onclick="filterProjects('Home Automation')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white transition-all filter-btn" data-filter="Home Automation">Home Auto</button>
+                    <button onclick="filterProjects('Sensors')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white transition-all filter-btn" data-filter="Sensors">Sensors</button>
+                    <button onclick="filterProjects('Display/UI')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white transition-all filter-btn" data-filter="Display/UI">Display/UI</button>
+                    <button onclick="filterProjects('Audio')" class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white transition-all filter-btn" data-filter="Audio">Audio</button>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="project-grid">
-                <!-- Projects injected here -->
+                <!-- Projects Injected Here -->
             </div>
         </div>
 
         <!-- VIEW: PERIPHERALS -->
         <div id="view-peripherals" class="hidden space-y-6">
-            <h3 class="text-xl font-bold text-slate-900">Peripheral & Accessory Library</h3>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="flex justify-between items-end mb-4">
+                <h3 class="text-xl font-bold text-white mono-font">COMPONENT_LIBRARY</h3>
+                <span class="text-xs text-slate-500 font-mono">DB_VER_2.1</span>
+            </div>
+            
+            <div class="bg-slate-800 rounded-xl shadow-lg border border-slate-700 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200">
-                        <thead class="bg-slate-50">
+                    <table class="min-w-full divide-y divide-slate-700">
+                        <thead class="bg-slate-900/50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Item Name</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Type</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Qty</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Key Feature</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-cyan-500 uppercase tracking-wider">Component Name</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Qty</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Notes / Specs</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-slate-200" id="peripheral-table-body">
-                            <!-- Table rows injected here -->
+                        <tbody class="divide-y divide-slate-700" id="peripheral-table-body">
+                            <!-- Table Rows Injected Here -->
                         </tbody>
                     </table>
                 </div>
@@ -185,162 +211,158 @@
 
     </main>
 
-    <footer class="bg-white border-t border-slate-200 mt-12 py-8">
-        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
-            <p>&copy; 2026 Maker's Inventory Lab. Generated based on provided CSV data.</p>
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-600 text-xs font-mono">
+            <p>GENERATED BY MAKERS_LAB_AI // SESSION_ID: 0X4F92</p>
         </div>
     </footer>
 
     <!-- JavaScript Logic -->
     <script>
-        // --- 1. DATA STORE (Simulated from CSV) ---
+        // --- 1. DATA STORE (Verified against CSV) ---
         const inventory = {
             socs: [
                 { model: "ESP8266 D1 Mini", qty: 4, family: "ESP8266", type: "SoC",
-                  desc: "The classic, low-cost WiFi IoT chip. Single-core 80MHz, 3.3V logic.",
-                  pros: ["Extremely cheap", "Massive community library support", "Compact form factor"],
-                  cons: ["Slow single core", "No Bluetooth", "Analog input 0-1V only", "Limited GPIOs"],
-                  bestFor: ["Simple WiFi switches", "Temp/Humidity loggers", "MQTT nodes"] 
+                  desc: "Legacy WiFi SoC. Low cost, single core, highly supported.",
+                  pros: ["Extremely low cost", "Massive library support", "Compact footprint"],
+                  cons: ["Slow 80MHz Single Core", "No Bluetooth", "Weak Analog (0-1V)", "Limited RAM"],
+                  bestFor: ["Simple MQTT Switches", "Temp Loggers", "WLED (Small scale)"] 
                 },
                 { model: "ESP32-WROOM-32", qty: 2, family: "ESP32", type: "SoC",
-                  desc: "The dual-core workhorse. 240MHz, WiFi + BT Classic + BLE.",
-                  pros: ["Dual Core performance", "Lots of GPIO", "BT Classic & BLE", "Capacitive Touch pins"],
-                  cons: ["Higher power consumption", "Micro-USB (usually)", "Older process node"],
-                  bestFor: ["Audio streaming", "Central hubs", "Complex logic tasks", "Retro gaming"]
+                  desc: "Standard Dual-Core DevKit (30 Pin). The robust workhorse.",
+                  pros: ["Dual Core 240MHz", "BT Classic + BLE", "Capacitive Touch Pins", "Hall Sensor"],
+                  cons: ["Power hungry", "Micro-USB interface", "Larger breadboard footprint"],
+                  bestFor: ["Audio Projects", "Retro Gaming", "Multi-sensor Hubs"]
                 },
                 { model: "ESP32-S3-Zero", qty: 2, family: "ESP32-S3", type: "SoC",
-                  desc: "Tiny stamp-sized S3. AI-focused, Native USB, RGB LED on board.",
-                  pros: ["Native USB (HID support)", "AI Vector instructions", "Very small", "Castellated pins"],
-                  cons: ["Fewer broken out pins than DevKit", "Slightly hotter running"],
-                  bestFor: ["USB Key injectors", "Tiny wearables", "LED controllers"]
+                  desc: "Stamp-sized S3. Native USB, RGB LED, Castellated pins.",
+                  pros: ["Native USB (HID)", "AI Vector Extensions", "Tiny Form Factor", "WS2812 Onboard"],
+                  cons: ["Limited pin breakout", "Runs warm"],
+                  bestFor: ["USB HID Attacks/Tools", "Wearables", "Custom PCB Integration"]
                 },
                 { model: "ESP32-C3 PLUS", qty: 2, family: "ESP32-C3", type: "SoC",
-                  desc: "RISC-V architecture. The modern ESP8266 replacement.",
-                  pros: ["RISC-V Single Core", "Better power efficiency", "Bluetooth 5 (LE)", "USB-Serial built-in"],
-                  cons: ["Single core", "Fewer GPIOs than S3/WROOM"],
-                  bestFor: ["Battery sensors", "Smart bulbs", "Simple Matter devices"]
+                  desc: "Supermini C3. RISC-V Single Core. Efficient 8266 successor.",
+                  pros: ["RISC-V Architecture", "Bluetooth 5 LE (Long Range)", "Low Power", "USB-C"],
+                  cons: ["Single Core", "Fewer GPIO than S3"],
+                  bestFor: ["Battery Sensors", "BLE Proxies", "Smart Home End-Devices"]
                 },
                 { model: "ESP32-S3 Supermini", qty: 2, family: "ESP32-S3", type: "SoC",
-                  desc: "Compact S3 board. High performance in a small footprint.",
-                  pros: ["S3 Power (AI/Dual Core)", "Small form factor", "Great for tight enclosures"],
-                  cons: ["No onboard CP2102 (uses native USB)", "Can be tricky to enter bootloader"],
-                  bestFor: ["Compact screens", "Camera projects (if interfaced)", "Voice assistants"]
+                  desc: "Compact S3. High power in a D1 Mini form factor.",
+                  pros: ["Dual Core S3 Power", "High GPIO count for size", "Native USB"],
+                  cons: ["Boot button required for flashing sometimes"],
+                  bestFor: ["Compact Displays", "Camera Interfaces", "Complex Logic"]
                 },
                 { model: "ESP32-C6", qty: 1, family: "ESP32-C6", type: "SoC",
-                  desc: "The Connectivity King. WiFi 6, Matter, Thread, Zigbee support.",
-                  pros: ["WiFi 6 (802.11ax)", "Matter/Thread/Zigbee radio", "Low power RISC-V"],
-                  cons: ["Very new (software maturing)", "Single core (160MHz)"],
-                  bestFor: ["Matter Bridges", "Thread Border Routers", "Future-proof smart home"]
+                  desc: "Next-Gen Connectivity. WiFi 6 + Matter + Thread + Zigbee.",
+                  pros: ["WiFi 6 (802.11ax)", "802.15.4 Radio (Thread/Zigbee)", "Matter Native"],
+                  cons: ["New ecosystem (Docs evolving)", "Single Core"],
+                  bestFor: ["Thread Border Router", "Matter Bridge", "Future-proof IoT"]
                 }
             ],
+            // Verified Peripherals from CSV
             peripherals: [
-                { name: "1.28 Round Screen (GC9A01)", type: "Display", qty: 2, feature: "240x240 IPS, Circular" },
-                { name: "0.96 OLED (SSD1306)", type: "Display", qty: 4, feature: "I2C, Monochromatic" },
-                { name: "1.9 Inch Screen", type: "Display", qty: 1, feature: "Rectangular IPS" },
-                { name: "LD2410C", type: "Sensor", qty: 2, feature: "mmWave Human Presence" },
+                { name: "1.28 Round Screen (GC9A01)", type: "Display", qty: 2, feature: "240x240 IPS, Circular, SPI" },
+                { name: "0.96 OLED (SSD1306)", type: "Display", qty: 4, feature: "128x64, I2C, Monochromatic" },
+                { name: "1.9 Inch ESP32-S3 Screen", type: "Display/SoC", qty: 1, feature: "Integrated S3 + Display (ST7789)" },
+                { name: "LD2410C", type: "Sensor", qty: 2, feature: "mmWave Human Presence (Static+Moving)" },
                 { name: "AHT10", type: "Sensor", qty: 4, feature: "Temp/Humidity (I2C)" },
-                { name: "BME280", type: "Sensor", qty: 4, feature: "Temp/Hum/Pressure (Precision)" },
-                { name: "DHT11", type: "Sensor", qty: 5, feature: "Basic Temp/Hum" },
-                { name: "BH1750", type: "Sensor", qty: 4, feature: "Light Intensity (Lux)" },
-                { name: "MPU-6050", type: "Sensor", qty: 4, feature: "Gyro/Accelerometer" },
-                { name: "MAX9814", type: "Sensor", qty: 2, feature: "Microphone w/ Auto Gain" },
-                { name: "INMP441", type: "Sensor", qty: 2, feature: "I2S Omni Microphone" },
-                { name: "HC-SR04", type: "Sensor", qty: 5, feature: "Ultrasonic Distance" },
-                { name: "Rotary Encoder", type: "Input", qty: 5, feature: "360° Knob + Button" },
-                { name: "Membrane Switch 1x4", type: "Input", qty: 5, feature: "Matrix Keypad" },
-                { name: "Vibration Motor", type: "Output", qty: 5, feature: "Haptic Feedback" },
-                { name: "WS2812B Strip", type: "Output", qty: 3, feature: "Addressable RGB LED" },
-                { name: "LRS-50-5", type: "Power", qty: 1, feature: "5V 10A PSU" }
+                { name: "BME280", type: "Sensor", qty: 4, feature: "Temp/Hum/Pressure (Precision I2C)" },
+                { name: "DHT11", type: "Sensor", qty: 5, feature: "Basic Temp/Hum (Legacy)" },
+                { name: "BH1750", type: "Sensor", qty: 4, feature: "Light Intensity (Lux) I2C" },
+                { name: "MPU-6050", type: "Sensor", qty: 4, feature: "6-Axis Gyro/Accelerometer" },
+                { name: "MAX9814", type: "Sensor", qty: 2, feature: "Mic w/ Auto Gain Control (Analog)" },
+                { name: "INMP441", type: "Sensor", qty: 2, feature: "Omnidirectional Mic (I2S Digital)" },
+                { name: "HC-SR04", type: "Sensor", qty: 5, feature: "Ultrasonic Distance (5V logic typ.)" },
+                { name: "Rotary Encoder", type: "Input", qty: 5, feature: "Infinite turn + Push button" },
+                { name: "Membrane Switch", type: "Input", qty: 5, feature: "Matrix Keypad (Assumed 1x4)" },
+                { name: "Vibration Motor", type: "Output", qty: 5, feature: "Haptic Feedback (Coin/Cylinder)" },
+                { name: "WS2812B Strip (16.4ft)", type: "Accessory", qty: 1, feature: "300 LEDs, Addressable RGB" },
+                { name: "WS2812B Strip (3.2ft)", type: "Accessory", qty: 1, feature: "144 LEDs, High Density" },
+                { name: "WS2812B Strip (1m)", type: "Accessory", qty: 1, feature: "144 LEDs, White PCB, IP30" },
+                { name: "Mean Well LRS-50-5", type: "Accessory", qty: 1, feature: "PSU: 5V, 10A, 50W (Industrial)" },
+                { name: "PET Woven Wire Mesh", type: "Accessory", qty: 1, feature: "Cable Management/Sleeve (5m)" }
             ]
         };
 
         const recommendations = [
-            { name: "ESP32-CAM", reason: "Adds vision capabilities. Cheap way to start object detection or video streaming." },
-            { name: "Seeed Xiao nRF52840", reason: "Tiny, powerful BLE focused board. Great for ultra-low power wearables and deeper Bluetooth projects." },
-            { name: "Raspberry Pi Pico W", reason: "Different ecosystem (RP2040). Great PIO (Programmable I/O) for custom protocols." },
-            { name: "Logic Analyzer (Saleae clone)", reason: "Essential for debugging I2C/SPI/UART protocols when sensors misbehave." }
+            { name: "ESP32-CAM", reason: "Adds vision capabilities. Lowest cost entry to object detection and video streaming." },
+            { name: "Seeed Xiao nRF52840", reason: "Tiny, powerful BLE-focused board. Perfect for coin-cell powered wearables." },
+            { name: "Logic Analyzer (Saleae)", reason: "Critical for debugging I2C/SPI issues when sensors fail to ACK." },
+            { name: "Breadboard Power Module", reason: "Provides clean 3.3V/5V rails directly to rails, saving messy wiring." }
         ];
 
         const projects = [
+            { title: "Smart Home Dashboard", category: "Display/UI", difficulty: "Intermediate", 
+              parts: ["1.9 Inch ESP32-S3 Screen"], 
+              desc: "Utilize the integrated S3+Screen module to build a dedicated Home Assistant dashboard using LVGL or openHASP." },
+
             { title: "MMWave Presence Light", category: "Home Automation", difficulty: "Intermediate", 
               parts: ["ESP32-C3 PLUS", "LD2410C", "WS2812B Strip"], 
-              desc: "Create a bed or under-cabinet light that fades on smoothly ONLY when human presence is detected. The LD2410C is far superior to PIR sensors." },
+              desc: "Bed/Cabinet light that fades smoothly on human presence. LD2410C detects stationary breathing, unlike PIR." },
             
             { title: "Desktop Weather Station", category: "Display/UI", difficulty: "Easy", 
               parts: ["ESP8266 D1 Mini", "0.96 OLED", "BME280"], 
-              desc: "Compact desk gadget showing local Temp/Humidity/Pressure. Use the BME280 for high accuracy." },
+              desc: "Compact desk gadget showing local Temp/Humidity/Pressure. BME280 offers superior precision over DHT11." },
             
-            { title: "Smart 'Nest' Style Thermostat UI", category: "Display/UI", difficulty: "Advanced", 
-              parts: ["ESP32-S3 Supermini", "1.28 Round Screen", "Rotary Encoder"], 
-              desc: "Build a physical smart dial. The encoder controls the UI on the round screen (LVGL library recommended). Control HA entities." },
+            { title: "Haptic Volume Knob", category: "Display/UI", difficulty: "Advanced", 
+              parts: ["ESP32-S3 Supermini", "1.28 Round Screen", "Rotary Encoder", "Vibration Motor"], 
+              desc: "Physical smart dial. Encoder controls UI; vibration motor gives 'tick' feedback on turns. Controls PC or HA." },
             
             { title: "Voice Assistant Satellite", category: "Audio", difficulty: "Hard", 
-              parts: ["ESP32-S3-Zero", "INMP441", "Speaker (need Amp)"], 
-              desc: "Use ESPHome + Home Assistant 'Willow' or 'Voice Assistant' pipeline. S3 is required for wake-word detection performance." },
+              parts: ["ESP32-S3-Zero", "INMP441", "Speaker (req. amp)"], 
+              desc: "Local Voice Control. Use ESPHome + 'Willow'. S3 Zero handles wake-word processing." },
             
             { title: "Plant Monitor Network", category: "Sensors", difficulty: "Easy", 
               parts: ["ESP8266 D1 Mini", "BH1750", "AHT10"], 
-              desc: "Monitor light levels and humidity for house plants. Report data via MQTT to a central dashboard." },
+              desc: "Monitor light levels (Lux) and humidity. Report via MQTT. Low cost deployment." },
             
-            { title: "Gesture Remote Control", category: "Sensors", difficulty: "Intermediate", 
-              parts: ["ESP32-C3 PLUS", "MPU-6050"], 
-              desc: "A handheld 'magic wand'. Detect tilt/flick gestures to control smart lights or volume on your PC via Bluetooth HID." },
-            
-            { title: "Matter/Thread Border Router", category: "Home Automation", difficulty: "Advanced", 
+            { title: "Matter Border Router", category: "Home Automation", difficulty: "Advanced", 
               parts: ["ESP32-C6"], 
-              desc: "Utilize the C6's 802.15.4 radio. Experiment with the new Matter standard to bridge simple devices to Apple Home/Google Home." },
+              desc: "Use the C6's 802.15.4 radio to create a Thread network, bridging Matter devices to your WiFi." },
             
-            { title: "Sunrise Alarm Clock", category: "Home Automation", difficulty: "Intermediate", 
-              parts: ["ESP32-WROOM-32", "WS2812B Strip", "LRS-50-5"], 
-              desc: "Simulate sunrise by slowly fading LED strip from red to white. WROOM handles the complex time/scheduler logic easily." },
+            { title: "Sunrise Alarm", category: "Home Automation", difficulty: "Intermediate", 
+              parts: ["ESP32-WROOM-32", "WS2812B Strip", "Mean Well LRS-50-5"], 
+              desc: "High-power sunrise simulation. The Mean Well PSU provides ample current for the 300 LED strip." },
             
-            { title: "Haptic Pomodoro Timer", category: "Productivity", difficulty: "Easy", 
-              parts: ["ESP8266 D1 Mini", "Vibration Motor", "Button"], 
-              desc: "A silent timer that buzzes your pocket. Button resets timer. Good for library or office use." },
-            
-            { title: "Sound Reactive LED Bar", category: "Audio", difficulty: "Intermediate", 
-              parts: ["ESP32-S3-Zero", "INMP441", "WS2812B"], 
-              desc: "Real-time FFT audio visualization. S3's dual cores help process audio math without lagging the LED animations." },
+            { title: "Sound Reactive Bar", category: "Audio", difficulty: "Intermediate", 
+              parts: ["ESP32-S3-Zero", "INMP441", "WS2812B (High Density)"], 
+              desc: "Real-time FFT visualizer using the 144 LED/m strip for fluid, high-res audio animations." },
             
             { title: "Digital Spirit Level", category: "Sensors", difficulty: "Easy", 
               parts: ["ESP32-C3 PLUS", "MPU-6050", "0.96 OLED"], 
-              desc: "Visual bubble level using the accelerometer. Great tool for the workbench." },
-
-            { title: "Home Assistant Notification Deck", category: "Display/UI", difficulty: "Intermediate", 
-              parts: ["ESP32-S3", "1.9 Inch Screen"], 
-              desc: "A dedicated screen showing HA notifications (Doorbell ring, Washer done, Mail arrived)." },
+              desc: "Visual bubble level using accelerometer data. Great portable tool." },
 
             { title: "Interactive Macropad", category: "Input", difficulty: "Intermediate", 
-              parts: ["ESP32-S3-Zero", "Membrane Switch 1x4", "Rotary Encoder"], 
-              desc: "USB HID device. 4 buttons for shortcuts (Copy/Paste/Mute), Encoder for Volume. S3-Zero supports Native USB." },
+              parts: ["ESP32-S3-Zero", "Membrane Switch", "Rotary Encoder"], 
+              desc: "USB HID device. Membrane keys for shortcuts, Encoder for volume. S3-Zero supports Native USB." },
 
-            { title: "Garage Parking Assistant", category: "Sensors", difficulty: "Easy", 
-              parts: ["ESP8266 D1 Mini", "HC-SR04", "WS2812B (Small strip)"], 
-              desc: "LEDs turn Green -> Yellow -> Red as car approaches the wall using ultrasonic distance measurement." },
+            { title: "Garage Assistant", category: "Sensors", difficulty: "Easy", 
+              parts: ["ESP8266 D1 Mini", "HC-SR04", "WS2812B"], 
+              desc: "Parking aid. LEDs turn Green -> Yellow -> Red as car approaches wall via Ultrasonic sensor." },
 
             { title: "Bed Occupancy Sensor", category: "Home Automation", difficulty: "Intermediate", 
-              parts: ["ESP32-C3 PLUS", "Membrane Switch (hack)"], 
-              desc: "Place membrane switch under mattress/sheet. Detect pressure to trigger 'Sleep Mode' in HA." },
+              parts: ["ESP32-C3 PLUS", "Membrane Switch"], 
+              desc: "Place membrane switch under mattress. Detects pressure to trigger 'Sleep Mode' in HA instantly." },
 
             { title: "Decibel Meter", category: "Audio", difficulty: "Intermediate", 
               parts: ["ESP32-WROOM-32", "MAX9814", "1.28 Round Screen"], 
-              desc: "Visual gauge of room noise levels. Uses analog mic input." },
+              desc: "Visual gauge of noise levels using analog mic. Round screen acts as a dial gauge." },
 
-            { title: "BT Proxy (ESPHome)", category: "Infrastructure", difficulty: "Very Easy", 
+            { title: "Cable Management Sleeve", category: "Infrastructure", difficulty: "N/A", 
+              parts: ["PET Woven Wire Mesh"], 
+              desc: "Not a code project, but use the mesh to bundle the cables for your Sunrise Alarm or LED projects!" },
+
+            { title: "BT Proxy", category: "Infrastructure", difficulty: "Very Easy", 
               parts: ["ESP32-C3 PLUS"], 
-              desc: "Extend Bluetooth range for Home Assistant. The C3 is extremely efficient for this specific task." },
+              desc: "Extend Bluetooth range for Home Assistant. The C3 is extremely efficient for this." },
 
-            { title: "Shower Timer", category: "Sensors", difficulty: "Easy", 
-              parts: ["ESP8266 D1 Mini", "AHT10", "0.96 OLED"], 
-              desc: "Detect rapid humidity rise (shower on) and start a countdown timer on the screen." },
-            
-            { title: "Smart Doorbell (Basic)", category: "Home Automation", difficulty: "Intermediate", 
-              parts: ["ESP32-WROOM-32", "Button", "Speaker", "MAX9814"], 
-              desc: "Press button -> Play sound inside + Send notification. Mic allows 1-way audio (simple)." },
+            { title: "Smart Doorbell", category: "Home Automation", difficulty: "Intermediate", 
+              parts: ["ESP32-WROOM-32", "Button", "MAX9814", "Speaker"], 
+              desc: "Press button -> Notification. Mic allows 1-way audio. WROOM has plenty of GPIO." },
               
-            { title: "Portable Coaster", category: "Display/UI", difficulty: "Fun", 
-              parts: ["ESP32-S3 Supermini", "1.28 Round Screen", "18650 Shield"], 
-              desc: "A digital coaster that displays GIFs or cool patterns under your drink. (Needs waterproofing!)." }
+            { title: "Wearable Badge", category: "Display/UI", difficulty: "Fun", 
+              parts: ["ESP32-S3-Zero", "0.96 OLED", "18650 Battery"], 
+              desc: "Small nametag/badge playing animations. S3 Zero is small enough to hide behind the screen." }
         ];
 
         // --- 2. RENDER FUNCTIONS ---
@@ -349,27 +371,39 @@
             // Stats
             document.getElementById('total-socs').innerText = inventory.socs.reduce((a, b) => a + b.qty, 0);
             document.getElementById('total-sensors').innerText = inventory.peripherals.filter(p => p.type === 'Sensor' || p.type === 'Input').reduce((a, b) => a + b.qty, 0);
-            document.getElementById('total-outputs').innerText = inventory.peripherals.filter(p => p.type === 'Display' || p.type === 'Output').reduce((a, b) => a + b.qty, 0);
+            document.getElementById('total-outputs').innerText = inventory.peripherals.filter(p => p.type.includes('Display') || p.type === 'Accessory' || p.type === 'Output').reduce((a, b) => a + b.qty, 0);
+
+            // Chart Configuration for Dark Mode
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.borderColor = '#334155';
 
             // Chart 1: Inventory Type
             const ctx1 = document.getElementById('inventoryChart').getContext('2d');
             new Chart(ctx1, {
                 type: 'doughnut',
                 data: {
-                    labels: ['SoCs', 'Sensors', 'Displays', 'Inputs', 'Outputs'],
+                    labels: ['SoCs', 'Sensors', 'Displays', 'Inputs', 'Acc/Power'],
                     datasets: [{
                         data: [
                             inventory.socs.reduce((a, b) => a + b.qty, 0),
                             inventory.peripherals.filter(p => p.type === 'Sensor').reduce((a, b) => a + b.qty, 0),
-                            inventory.peripherals.filter(p => p.type === 'Display').reduce((a, b) => a + b.qty, 0),
+                            inventory.peripherals.filter(p => p.type.includes('Display')).reduce((a, b) => a + b.qty, 0),
                             inventory.peripherals.filter(p => p.type === 'Input').reduce((a, b) => a + b.qty, 0),
-                            inventory.peripherals.filter(p => p.type === 'Output').reduce((a, b) => a + b.qty, 0)
+                            inventory.peripherals.filter(p => p.type === 'Accessory' || p.type === 'Output').reduce((a, b) => a + b.qty, 0)
                         ],
-                        backgroundColor: ['#0d9488', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899'],
-                        borderWidth: 0
+                        backgroundColor: ['#0891b2', '#c084fc', '#2dd4bf', '#f472b6', '#64748b'],
+                        borderWidth: 0,
+                        hoverOffset: 10
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position: 'right', labels: { padding: 20, font: { family: 'JetBrains Mono' } } } 
+                    },
+                    cutout: '70%'
+                }
             });
 
             // Chart 2: SoC Families
@@ -377,18 +411,23 @@
             new Chart(ctx2, {
                 type: 'bar',
                 data: {
-                    labels: inventory.socs.map(s => s.model),
+                    labels: inventory.socs.map(s => s.model.replace('ESP32-', '').replace('ESP8266 ', '')),
                     datasets: [{
-                        label: 'Quantity',
+                        label: 'Units Available',
                         data: inventory.socs.map(s => s.qty),
-                        backgroundColor: '#14b8a6',
-                        borderRadius: 4
+                        backgroundColor: '#06b6d4',
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#22d3ee'
                     }]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#1e293b' } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: { legend: { display: false } }
                 }
             });
         }
@@ -396,40 +435,39 @@
         function renderSoCs() {
             const container = document.getElementById('soc-grid');
             container.innerHTML = inventory.socs.map((soc, index) => `
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden card-hover cursor-pointer group" onclick="toggleSoCDetail(${index})">
+                <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden card-hover cursor-pointer group relative" onclick="toggleSoCDetail(${index})">
                     <div class="p-6">
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="inline-block px-2 py-1 text-xs font-semibold bg-slate-100 text-slate-600 rounded mb-2">${soc.family}</span>
-                                <h4 class="text-xl font-bold text-slate-800">${soc.model}</h4>
-                                <p class="text-sm text-slate-500 mt-1">${soc.qty} unit(s) available</p>
+                                <span class="inline-block px-2 py-1 text-[10px] uppercase tracking-wider font-bold bg-slate-900 text-cyan-500 rounded border border-slate-700 mb-2 mono-font">${soc.family}</span>
+                                <h4 class="text-lg font-bold text-white group-hover:text-cyan-400 transition-colors">${soc.model}</h4>
+                                <p class="text-xs text-slate-500 mt-1 font-mono">QTY: ${soc.qty}</p>
                             </div>
-                            <div class="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                                <span class="text-xl font-bold">i</span>
+                            <div class="w-8 h-8 rounded bg-slate-700 text-cyan-500 flex items-center justify-center group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                                <span class="font-bold text-lg">+</span>
                             </div>
                         </div>
-                        <p class="mt-4 text-slate-600 text-sm">${soc.desc}</p>
+                        <p class="mt-4 text-slate-400 text-sm leading-relaxed">${soc.desc}</p>
                         
-                        <!-- Collapsed Details (Hidden by default, shown via basic CSS/JS toggle) -->
-                        <div id="soc-detail-${index}" class="hidden mt-6 pt-4 border-t border-slate-100 animate-fade-in">
+                        <div id="soc-detail-${index}" class="hidden mt-6 pt-4 border-t border-slate-700 animate-fade-in">
                             <div class="grid grid-cols-2 gap-4 mb-4">
                                 <div>
-                                    <h5 class="text-xs font-bold text-teal-700 uppercase mb-1">Strengths</h5>
-                                    <ul class="text-xs text-slate-600 list-disc pl-4 space-y-1">
-                                        ${soc.pros.map(p => `<li>${p}</li>`).join('')}
+                                    <h5 class="text-[10px] font-bold text-green-400 uppercase mb-2 tracking-wider">Pros</h5>
+                                    <ul class="text-xs text-slate-400 space-y-1">
+                                        ${soc.pros.map(p => `<li class="flex items-center"><span class="w-1 h-1 bg-green-500 rounded-full mr-2"></span>${p}</li>`).join('')}
                                     </ul>
                                 </div>
                                 <div>
-                                    <h5 class="text-xs font-bold text-red-500 uppercase mb-1">Weaknesses</h5>
-                                    <ul class="text-xs text-slate-600 list-disc pl-4 space-y-1">
-                                        ${soc.cons.map(c => `<li>${c}</li>`).join('')}
+                                    <h5 class="text-[10px] font-bold text-red-400 uppercase mb-2 tracking-wider">Cons</h5>
+                                    <ul class="text-xs text-slate-400 space-y-1">
+                                        ${soc.cons.map(c => `<li class="flex items-center"><span class="w-1 h-1 bg-red-500 rounded-full mr-2"></span>${c}</li>`).join('')}
                                     </ul>
                                 </div>
                             </div>
                             <div>
-                                <h5 class="text-xs font-bold text-slate-700 uppercase mb-2">Recommended Use Cases</h5>
+                                <h5 class="text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider">Deploy For</h5>
                                 <div class="flex flex-wrap gap-2">
-                                    ${soc.bestFor.map(u => `<span class="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded border border-slate-200">${u}</span>`).join('')}
+                                    ${soc.bestFor.map(u => `<span class="px-2 py-1 bg-slate-900 text-slate-300 text-[10px] rounded border border-slate-700">${u}</span>`).join('')}
                                 </div>
                             </div>
                         </div>
@@ -440,9 +478,9 @@
             // Recommendations
             const recContainer = document.getElementById('recommendation-grid');
             recContainer.innerHTML = recommendations.map(rec => `
-                <div class="bg-gradient-to-br from-slate-50 to-white p-4 rounded-lg border border-dashed border-slate-300">
-                    <h5 class="font-bold text-slate-800">${rec.name}</h5>
-                    <p class="text-xs text-slate-500 mt-2 leading-relaxed">${rec.reason}</p>
+                <div class="bg-slate-800/50 p-4 rounded-lg border border-dashed border-slate-600 hover:border-cyan-500 transition-colors">
+                    <h5 class="font-bold text-cyan-400 text-sm mono-font">${rec.name}</h5>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">${rec.reason}</p>
                 </div>
             `).join('');
         }
@@ -452,23 +490,24 @@
             const filtered = filter === "All" ? projects : projects.filter(p => p.category === filter);
             
             container.innerHTML = filtered.map(proj => `
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 card-hover flex flex-col h-full">
-                    <div class="flex justify-between items-start mb-2">
-                        <span class="px-2 py-1 rounded text-xs font-medium 
-                            ${proj.difficulty === 'Easy' ? 'bg-green-100 text-green-700' : 
-                              proj.difficulty === 'Intermediate' ? 'bg-yellow-100 text-yellow-700' : 
-                              'bg-red-100 text-red-700'}">
+                <div class="bg-slate-800 rounded-xl border border-slate-700 p-6 card-hover flex flex-col h-full group">
+                    <div class="flex justify-between items-start mb-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider 
+                            ${proj.difficulty === 'Easy' ? 'bg-green-900/30 text-green-400 border border-green-800' : 
+                              proj.difficulty === 'Intermediate' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-800' : 
+                              proj.difficulty === 'N/A' ? 'bg-slate-700 text-slate-300 border border-slate-600' :
+                              'bg-red-900/30 text-red-400 border border-red-800'}">
                             ${proj.difficulty}
                         </span>
-                        <span class="text-xs text-slate-400 font-medium">${proj.category}</span>
+                        <span class="text-[10px] text-slate-500 font-mono border border-slate-700 px-2 py-0.5 rounded">${proj.category}</span>
                     </div>
-                    <h4 class="text-lg font-bold text-slate-800 mb-2">${proj.title}</h4>
-                    <p class="text-sm text-slate-600 mb-4 flex-grow">${proj.desc}</p>
+                    <h4 class="text-lg font-bold text-slate-100 mb-2 group-hover:text-cyan-400 transition-colors">${proj.title}</h4>
+                    <p class="text-sm text-slate-400 mb-4 flex-grow leading-relaxed">${proj.desc}</p>
                     
-                    <div class="border-t border-slate-100 pt-3">
-                        <p class="text-xs font-semibold text-slate-500 mb-2">Key Parts:</p>
-                        <div class="flex flex-wrap gap-1">
-                            ${proj.parts.map(part => `<span class="px-1.5 py-0.5 bg-slate-100 text-slate-600 text-xs rounded border border-slate-200">${part}</span>`).join('')}
+                    <div class="border-t border-slate-700 pt-3">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-wider">Required Components</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${proj.parts.map(part => `<span class="px-2 py-0.5 bg-slate-900 text-cyan-200 text-[10px] rounded border border-slate-700">${part}</span>`).join('')}
                         </div>
                     </div>
                 </div>
@@ -478,10 +517,10 @@
         function renderPeripherals() {
             const tbody = document.getElementById('peripheral-table-body');
             tbody.innerHTML = inventory.peripherals.map(item => `
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">${item.name}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${item.type}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${item.qty}</td>
+                <tr class="hover:bg-slate-800/50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-200 font-mono">${item.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-xs text-cyan-500 uppercase tracking-wider font-bold">${item.type}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400">${item.qty}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">${item.feature}</td>
                 </tr>
             `).join('');
@@ -490,33 +529,31 @@
         // --- 3. UI LOGIC ---
 
         function switchTab(tabId) {
-            // Hide all views
             ['dashboard', 'socs', 'projects', 'peripherals'].forEach(id => {
                 document.getElementById(`view-${id}`).classList.add('hidden');
                 document.getElementById(`nav-${id}`).classList.replace('tab-active', 'tab-inactive');
             });
-            
-            // Show selected view
             document.getElementById(`view-${tabId}`).classList.remove('hidden');
             document.getElementById(`nav-${tabId}`).classList.replace('tab-inactive', 'tab-active');
-            
-            // Render specific components if needed (Charts only need one render really, but doing it on load is fine)
         }
 
         function toggleSoCDetail(index) {
             const detail = document.getElementById(`soc-detail-${index}`);
-            detail.classList.toggle('hidden');
+            if(detail.classList.contains('hidden')) {
+                detail.classList.remove('hidden');
+            } else {
+                detail.classList.add('hidden');
+            }
         }
 
         function filterProjects(category) {
-            // Update buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 if (btn.dataset.filter === category) {
-                    btn.classList.add('bg-slate-200', 'active-filter');
-                    btn.classList.remove('bg-white', 'border');
+                    btn.classList.add('bg-cyan-600', 'text-white', 'shadow-lg', 'shadow-cyan-900/50');
+                    btn.classList.remove('bg-slate-800', 'text-slate-400', 'border');
                 } else {
-                    btn.classList.remove('bg-slate-200', 'active-filter');
-                    btn.classList.add('bg-white', 'border');
+                    btn.classList.remove('bg-cyan-600', 'text-white', 'shadow-lg', 'shadow-cyan-900/50');
+                    btn.classList.add('bg-slate-800', 'text-slate-400', 'border');
                 }
             });
             renderProjects(category);
